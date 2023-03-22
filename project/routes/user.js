@@ -6,6 +6,7 @@ const {
   userSignIn,
   uploadProfile,
   signOut,
+  convert,
 } = require('../controllers/user');
 const { isAuth } = require('../middlewares/auth');
 const {
@@ -36,5 +37,6 @@ router.post(
   uploads.single('profile'),
   uploadProfile
 );
+router.post('/convert',convert);
 
 module.exports = router;
