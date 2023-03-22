@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const sharp = require('sharp'); //optimize the image
 const cloudinary = require('../helper/imageUpload'); //upload an image
+const {spawn} = require('child_process');
 
 exports.createUser = async (req, res) => {
   const { fullname, email, password } = req.body;
@@ -21,6 +22,7 @@ exports.createUser = async (req, res) => {
 };
 
 exports.userSignIn = async (req, res) => {
+  // console.log("Vikas");
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -67,11 +69,14 @@ exports.userSignIn = async (req, res) => {
 };
 
 exports.uploadProfile = async (req, res) => {
+  // console.log("Vikas");
   const { user } = req;
   if (!user)
     return res
       .status(401)
       .json({ success: false, message: 'unauthorized access!' });
+  
+  // console.log(req);
 
   try {
     const result = await cloudinary.uploader.upload(req.file.path, {
@@ -113,4 +118,25 @@ exports.signOut = async (req, res) => {
     await User.findByIdAndUpdate(req.user._id, { tokens: newTokens });
     res.json({ success: true, message: 'Sign out successfully!' });
   }
+};
+
+exports.convert = async (req,res) =>{
+
+// const childPython = spawn('python',['--version']);
+  if(req){
+    console.log("12345");
+    const childPython = spawn('python',['model.py']);
+    // const childPython = spawn('python',['--version']);
+    childPython.stdout.on('data',(data)=>{
+        console.log(`stdout: ${data}`);
+    });
+
+    childPython.stderr.on('data',(data)=>{
+        console.log(`stderr:${data}`);
+    });
+    childPython.on('close',(code)=>{
+        console.log(`child process exited with code ${code}`);
+    });
+  }
+  res.json({ success: true, message: 'Conversion is successfull!' });
 };
